@@ -21,7 +21,9 @@ class Nakama {
 
   async authenticate() {
     const useSSL = false;
-    this.client = new Client("defaultkey", "localhost", "7350", useSSL);
+    const host = process.env.REACT_APP_NAKAMA_HOST || "localhost";
+    const port = process.env.REACT_APP_NAKAMA_PORT || "7350";
+    this.client = new Client("defaultkey", host, port, useSSL);
     const deviceId = uuidv4();
     console.log("Authenticating with deviceId:", deviceId);
     this.session = await this.client.authenticateDevice(deviceId, true);
