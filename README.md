@@ -6,11 +6,12 @@ React and Nakama's server-authoritative architecture.
 ## Live Demo
 
 ![alt text](<Screenshot 2026-04-17 135123.png>)
-![alt text](<Screenshot 2026-04-17 134721.png>)
 ![alt text](<Screenshot 2026-04-17 134743.png>)
+![alt text](image-7.png)
 ![alt text](<Screenshot 2026-04-17 134945.png>)
 ![alt text](<Screenshot 2026-04-17 135020.png>)
 ![alt text](<Screenshot 2026-04-17 135109.png>)
+![alt text](<Screenshot 2026-04-17 134721.png>)
 
 ## Tech Stack
 
