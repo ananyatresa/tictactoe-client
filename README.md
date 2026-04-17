@@ -1,70 +1,235 @@
-# Getting Started with Create React App
+# Multiplayer Tic-Tac-Toe
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A production-ready, real-time multiplayer Tic-Tac-Toe game built with
+React and Nakama's server-authoritative architecture.
 
-## Available Scripts
+## Live Demo
 
-In the project directory, you can run:
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
+![alt text](image-6.png)
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Layer            | Technology                    |
+| ---------------- | ----------------------------- |
+| Frontend         | React JS                      |
+| Game Backend     | Nakama (server-authoritative) |
+| Database         | PostgreSQL                    |
+| Frontend Hosting | DigitalOcean (Nginx)          |
+| Server Hosting   | DigitalOcean Droplet          |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Architecture & Design Decisions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Server-Authoritative Architecture
 
-### `npm run build`
+All game logic runs on the Nakama server — the client never
+decides game state. This prevents cheating and ensures consistency
+across all connected clients.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Real-time Communication
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+WebSocket connection between React client and Nakama server.
+All game state updates are pushed from server to clients instantly.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Op Code Protocol
 
-### `npm run eject`
+| Code              | Direction       | Meaning                      |
+| ----------------- | --------------- | ---------------------------- |
+| 1 (START)         | Server → Client | Game started, marks assigned |
+| 2 (UPDATE)        | Server → Client | Board updated                |
+| 3 (DONE)          | Server → Client | Game over                    |
+| 4 (MOVE)          | Client → Server | Player move                  |
+| 5 (REJECTED)      | Server → Client | Invalid move                 |
+| 6 (OPPONENT_LEFT) | Server → Client | Opponent disconnected        |
+| 7 (INVITE_AI)     | Client → Server | Invite AI opponent           |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Matchmaking
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Player calls `find_match_js` RPC on Nakama
+- Server queries open matches with matching game mode
+- If found → player joins existing match
+- If not found → new match created
+- Supports Normal mode (20s/turn) and Fast mode (10s/turn)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Game Modes
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Normal mode** — 20 seconds per turn
+- **Fast mode** — 10 seconds per turn, auto-forfeit on timeout
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Setup & Installation
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
 
-### Code Splitting
+- Node.js 18+
+- Docker Desktop
+- Git
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Local Development
 
-### Analyzing the Bundle Size
+**1. Clone both repositories:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+git clone https://github.com/heroiclabs/nakama-project-template
+git clone current repository url
+```
 
-### Making a Progressive Web App
+**2. Start Nakama server:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+cd nakama-project-template
+npm install
+npx tsc
+docker compose up -d
+```
 
-### Advanced Configuration
+**3. Start React app:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+cd tictactoe-client
+npm install
+npm start
+```
 
-### Deployment
+### Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+REACT_APP_NAKAMA_HOST=GAME_URL
+REACT_APP_NAKAMA_PORT=7350
+CI=false
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Deployment
+
+### Nakama Server (DigitalOcean)
+
+**1. Create Ubuntu 22.04 droplet on DigitalOcean**
+
+**2. Install Docker:**
+
+```bash
+apt-get update
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+apt-get install docker-compose-plugin -y
+```
+
+**3. Clone and start Nakama:**
+
+```bash
+git clone https://github.com/heroiclabs/nakama-project-template /root/nakama
+cd /root/nakama
+```
+
+**4. Upload compiled index.js:**
+
+```bash
+# On local machine
+npx tsc
+scp -i ~/.ssh/id_rsa build/index.js root@YOUR_IP:/root/nakama/modules/build/index.js
+```
+
+**5. Start containers:**
+
+```bash
+docker compose up -d
+```
+
+**6. Open ports:**
+
+```bash
+ufw allow 22
+ufw allow 80
+ufw allow 7350
+ufw allow 7351
+ufw enable
+```
+
+### Frontend (Nginx on same droplet)
+
+**1. Install Nginx:**
+
+```bash
+apt-get install -y nginx
+```
+
+**2. Build and upload React:**
+
+```bash
+# Local machine
+npm run build
+scp -i ~/.ssh/id_rsa -r build/ root@YOUR_IP:/var/www/html/build
+```
+
+**3. Configure Nginx:**
+
+```nginx
+server {
+    listen 80;
+    root /var/www/html/build;
+    index index.html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+```bash
+systemctl restart nginx
+```
+
+---
+
+## API & Server Configuration
+
+### Nakama Configuration (local.yml)
+
+- Server key: `defaultkey`
+- HTTP port: `7350`
+- Console port: `7351`
+- Tick rate: `5` per second
+- Max empty match duration: `30` seconds
+- Delay between games: `5` seconds
+
+### Nakama RPC Endpoints
+
+| RPC ID          | Description            |
+| --------------- | ---------------------- |
+| `find_match_js` | Find or create a match |
+| `rewards_js`    | Daily reward system    |
+
+---
+
+## How to Test Multiplayer
+
+1. Open Game_URL in **two different browsers**
+   (e.g. Chrome and Firefox) or two different devices
+2. Click **Find Match** in both windows
+3. Both players will be matched automatically
+4. Player assigned X goes first
+5. Click any empty cell to make your move
+6. First to get 3 in a row wins
+
+### Test Fast Mode
+
+1. Click **Fast Mode ⚡** in both windows
+2. Each player has 10 seconds per turn
+3. Failing to move in time forfeits the turn
+
+---
+
+## Bonus Features Implemented
+
+- ✅ Timer-based game mode (Fast Mode — 10s per turn)
+- ✅ Graceful disconnection handling (OPPONENT_LEFT)
+- ✅ Automatic rematch after game ends
+- ✅ Dark mode cyber UI with neon animations
+- ✅ Fully responsive mobile layout
