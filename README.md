@@ -5,13 +5,12 @@ React and Nakama's server-authoritative architecture.
 
 ## Live Demo
 
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
-![alt text](image-6.png)
+![alt text](<Screenshot 2026-04-17 135123.png>)
+![alt text](<Screenshot 2026-04-17 134721.png>)
+![alt text](<Screenshot 2026-04-17 134743.png>)
+![alt text](<Screenshot 2026-04-17 134945.png>)
+![alt text](<Screenshot 2026-04-17 135020.png>)
+![alt text](<Screenshot 2026-04-17 135109.png>)
 
 ## Tech Stack
 
@@ -225,11 +224,3 @@ systemctl restart nginx
 3. Failing to move in time forfeits the turn
 
 ---
-
-## Bonus Features Implemented
-
-- ✅ Timer-based game mode (Fast Mode — 10s per turn)
-- ✅ Graceful disconnection handling (OPPONENT_LEFT)
-- ✅ Automatic rematch after game ends
-- ✅ Dark mode cyber UI with neon animations
-- ✅ Fully responsive mobile layout
